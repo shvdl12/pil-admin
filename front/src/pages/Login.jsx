@@ -9,7 +9,7 @@ import Button from '@mui/material/Button';
 import Link from '@mui/material/Link';
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { useNavigate } from "react-router-dom";
-import axios from 'axios'
+import _axios from '../axios'
 
 import { useSelector, useDispatch } from "react-redux";
 import { login } from "../reducer/auth";
@@ -78,7 +78,7 @@ const Login = () => {
   const handelLogin = () => {
     
     
-  axios.post('/account/login', account).then((res) => {
+    _axios.post('/account/login', account).then((res) => {
       if(res.data.code === 200) {
         dispatch(login({
           token: res.data.token,
