@@ -10,17 +10,17 @@ import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
+import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import LogoutIcon from '@mui/icons-material/Logout';
+import PeopleIcon from '@mui/icons-material/People';
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../reducer/auth";
 
 const drawerWidth = 240;
 
@@ -71,29 +71,42 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 export default function Layout() {
   const navigate = useNavigate();
+  const userChecker = useSelector(state => state.auth.user)
+  const dispatch = useDispatch();
   const theme = useTheme();
-  const [open, setOpen] = React.useState(true);
 
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
-
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
+  const handleLogout = () => {
+	dispatch(logout())  
+	navigate('/')
+  }
 
   return (
     <Box sx={{ display: 'flex' }}>
     	<CssBaseline />
-    	<AppBar position="fixed" open={open}>
+    	<AppBar position="fixed" open>
     		<Toolbar>
-    			<IconButton color="inherit" aria-label="open drawer" onClick={handleDrawerOpen} edge="start"
-    				sx={{ mr: 2, ...(open && { display: 'none' }) }}>
-    				<MenuIcon />
-    			</IconButton>
-    			<Typography variant="h6" noWrap component="div">
-    				PIL Admin
-    			</Typography>
+    					{/* <Typography variant="h6" noWrap component="div">
+    						PIL Admin
+    					</Typography>
+					<IconButton color="inherit" aria-label="logout" onClick={handleLogout} edge="end">
+						<LogoutIcon />
+					</IconButton> */}
+				
+				<Grid container alignItems="center" justifyContent="space-between">
+					<Grid item >
+						<Typography variant="h6" noWrap component="div">
+    						PIL Admin
+    					</Typography>
+					</Grid>
+					<Grid item>
+					<IconButton justifyContent="center" color="inherit" aria-label="logout" onClick={handleLogout} edge="end">
+						<LogoutIcon  hover/>
+					</IconButton>
+					</Grid>
+				</Grid>
+    			
+
+				
     		</Toolbar>
     	</AppBar>
 
@@ -105,53 +118,39 @@ export default function Layout() {
 							width: drawerWidth,
 							boxSizing: 'border-box',
 						},
-					}} variant="persistent" anchor="left" open={open}>
+					}} variant="persistent" anchor="left" open>
     		<DrawerHeader>
-    			<IconButton onClick={handleDrawerClose}>
-    				{theme.direction === 'ltr' ?
-    				<ChevronLeftIcon /> :
-    				<ChevronRightIcon />}
-    			</IconButton>
+			<Grid container alignItems= "center" justifyContent="center">
+				<Grid item>
+					<Typography variant="h6"> {userChecker.id} / {userChecker.grade} </Typography>
+				</Grid>
+			</Grid>
+			
     		</DrawerHeader>
     		<Divider />
     		<List>
-    			{/* {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-    			<ListItem key={text} disablePadding>
-    				<ListItemButton>
-    					<ListItemIcon>
-    						{index % 2 === 0 ?
-    						<InboxIcon /> :
-    						<MailIcon />}
-    					</ListItemIcon>
-    					<ListItemText primary={text} />
-    				</ListItemButton>
-    			</ListItem>
-    			))} */}
 				<ListItem disablePadding>
-					<ListItemButton>
+					<ListItemButton
+						onClick={ () => { navigate('/mypage')}}
+					>
 						<ListItemIcon> <AccountCircleIcon /> </ListItemIcon>
 						<ListItemText primary='내 정보'></ListItemText>
 					</ListItemButton>
 				</ListItem>
+				{/* <Divider /> */}
+				<ListItem disablePadding>
+					<ListItemButton
+						onClick={ () => { navigate('/account/management')}}
+					>
+						<ListItemIcon> <PeopleIcon /> </ListItemIcon>
+						<ListItemText primary='계정 관리'></ListItemText>
+					</ListItemButton>
+				</ListItem>
     		</List>
-    		<Divider />
-    		<List>
-    			{['All mail', 'Trash', 'Spam'].map((text, index) => (
-    			<ListItem key={text} disablePadding>
-    				<ListItemButton>
-    					<ListItemIcon>
-    						{index % 2 === 0 ?
-    						<InboxIcon /> :
-    						<MailIcon />}
-    					</ListItemIcon>
-    					<ListItemText primary={text} />
-    				</ListItemButton>
-    			</ListItem>
-    			))}
-    		</List>
+    		
     	</Drawer>
 
-    	<Main open={open}>
+    	<Main open={true}>
     		<DrawerHeader />
     		<Outlet />
     	</Main>

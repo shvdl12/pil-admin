@@ -1,13 +1,11 @@
 const jwt = require('jsonwebtoken');
-const moment = require('moment')
 const logger = require('../logger')
 
 
 const verifyToken = (req, res, next) => {
   try {
-    console.log(req.headers.authorization)
-    req.decoded = jwt.verify(req.headers.authorization, process.env.JWT_SECRET_KEY)
-    jwt.decode(req.headers.authorization)
+    const token = jwt.decode(req.headers.authorization)
+    req.userId = token.userId
     
     return next();
 

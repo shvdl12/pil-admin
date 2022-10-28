@@ -7,16 +7,13 @@ const verifyToken = require('../middleware/index');
 const bcrypt = require('bcrypt')
 const Sequelize = require("sequelize");
 
-router.post('/join', async function (req, res, next) {
+router.post('/create', verifyToken, async function (req, res, next) {
 
   try {
-    const account = { ...req.body.account }
-
     await tbAccount.create({
-      id: account.id,
-      password: bcrypt.hashSync(account.password, 10),
-      name: account.name,
-      isAdmin: account.isAdmin
+      id: req.body.id,
+      password: bcrypt.hashSync('eoqnwndro1!', 10),
+      name: req.body.name
     })
     
     res.status(200).json({
@@ -30,8 +27,36 @@ router.post('/join', async function (req, res, next) {
       message = '이미 존재하는 아이디입니다.'
     }
 
-    res.status(500).json({
+    res.status(200).json({
       message: message
+    })
+  }
+});
+
+router.post('/delete', verifyToken, async function (req, res, next) {
+
+  try {
+    const result = await tbAccount.destroy({
+      where: {
+        id: req.body.id,
+      }
+    })
+
+    if(result) {
+      res.status(200).json({
+        code: 200,
+        message: '삭제되었습니다.'
+      })  
+    }else {
+      res.status(200).json({
+        code: 400,
+        message: '삭제 실패'
+      })  
+    }    
+  } catch (err) {
+    logger.error(`${req.originalUrl} error ${JSON.stringify(err.message)}`)
+    res.status(500).json({
+      message: err.message
     })
   }
 });
@@ -49,7 +74,7 @@ router.post('/login', async function (req, res)  {
         expiresIn: process.env.JWT_EXPIRESIN,
         issuer: process.env.JWT_ISSUER,
       });
-      res.status(200).json({ code: 200, token, isAdmin: result.isAdmin })
+      res.status(200).json({ code: 200, token, id: result.id, grade: result.grade })
     }else {
       res.status(200).json({ code: 400, message: '아이디 또는 비밀번호를 확인해주세요.' })
     }
@@ -63,77 +88,89 @@ router.post('/login', async function (req, res)  {
   }
 })
 
-router.get('/list', verifyToken, async function (req, res, next) {
-
+router.get('/detail', verifyToken, async function (req, res)  {
   try {
-    
-    const result = await counseling.findAll({
-      order: [
-        ['idx', 'DESC']
-      ]
-    })
-
-    res.status(200).json({
-      code: 200,
-      data: result,
-    });
-    
-  } catch (err) {
-
-    logger.error(`${req.originalUrl} error ${JSON.stringify(err.message)}`)
-
-    res.status(500).json({
-      message: "server error"
-    });
-  }
-});
-
-router.post('/create', async function (req, res, next) {
-  try {
-    
-    await counseling.create(req.body)
-    
-    res.status(200).json({
-      code: 200,
-      message: 'success',
-    });
-    
-  } catch (err) {
-
-    logger.error(`${req.originalUrl} error ${JSON.stringify(err.message)}`)
-    res.status(500).json({
-      message: "server error"
-    })
-  }
-});
-router.post('/delete', verifyToken, async function (req, res, next) {
-
-  try {
-
-    const result = await counseling.destroy({
-      where: {
-        idx: req.body
-      }
+    const result = await tbAccount.findOne( {
+      attributes: ['id', 'name', 'password'] ,
+      where: {id: req.userId}
     })
     
-    if (result) {
-      res.status(200).json({
-        code: 200,
-        message: "success",
-      });
-    } else {
-      res.status(200).json({
-        code: 400,
-        message: "fail",
-      });
+    if(result) {
+      res.status(200).json({ code: 200, result })
+    }else {
+      new Error('User Not Found')
     }
-
-  } catch (err) {
+  }  
+  catch (err) {
     logger.error(`${req.originalUrl} error ${JSON.stringify(err.message)}`)
     res.status(500).json({
-      message: "server error"
+      message: err.message
     })
   }
-});
+})
+
+router.get('/detail/all', verifyToken, async function (req, res)  {
+  try {
+    const result = await tbAccount.findAll( {
+      attributes: ['id', 'name', 'grade', 'createdAt'] 
+    })
+    
+    if(result) {
+      res.status(200).json({ code: 200, result })
+    }
+  }  
+  catch (err) {
+    logger.error(`${req.originalUrl} error ${JSON.stringify(err.message)}`)
+    res.status(500).json({
+      message: err.message
+    })
+  }
+})
+
+router.post('/update/password', verifyToken, async function (req, res)  {
+  try {
+    const result = await tbAccount.update({
+      password: bcrypt.hashSync(req.body.password, 10)
+      // password: req.body.password
+    }, { where: {
+      id: req.body.id
+    }})
+    
+    if(result && result[0] > 0) {
+      res.status(200).json({ code: 200 })
+    }else {
+      new Error('Failed to update password')
+    }
+  }  
+  catch (err) {
+    logger.error(`${req.originalUrl} error ${JSON.stringify(err.message)}`)
+    res.status(500).json({
+      message: err.message
+    })
+  }
+})
+
+router.post('/update/grade', verifyToken, async function (req, res)  {
+  try {
+    console.log(req.body)
+    const result = await tbAccount.update({
+      grade: req.body.grade
+    }, { where: {
+      id: req.body.id
+    }})
+    
+    if(result && result[0] > 0) {
+      res.status(200).json({ code: 200 })
+    }else {
+      new Error('Failed to update grade')
+    }
+  }  
+  catch (err) {
+    logger.error(`${req.originalUrl} error ${JSON.stringify(err.message)}`)
+    res.status(500).json({
+      message: err.message
+    })
+  }
+})
 
 module.exports = router;

@@ -37,7 +37,11 @@ _axios.interceptors.response.use(// 확인해
      // delete localStorage
     }
     else if(error.response.status === 500 ) {
-      alert(error)
+      let message = error
+      if(error.response.data.message) {
+        message = message + "\n" + error.response.data.message
+      }
+      alert(message)
     }
 
     return Promise.reject(error);

@@ -17,8 +17,8 @@ const adminAuth = sequelize.define(
     name: {
       type: Sequelize.STRING(20)
     },
-    isAdmin: {
-      type: Sequelize.STRING(1)
+    grade: {
+      type: Sequelize.STRING(10)
     },
     createdAt: {
       type: Sequelize.DATE

@@ -11,7 +11,7 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { useNavigate } from "react-router-dom";
 import _axios from '../axios'
 
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { login } from "../reducer/auth";
 
 const Root = styled(Grid) ({
@@ -66,8 +66,6 @@ const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   
-  const userChecker = useSelector(state => state.auth.user);
-
   const handelAccount = (property, event) => {
     const accountCopy = { ...account };
     accountCopy[property] = event.target.value;
@@ -82,9 +80,10 @@ const Login = () => {
       if(res.data.code === 200) {
         dispatch(login({
           token: res.data.token,
-          isAdmin: res.data.isAdmin === 'Y' ? true : false
+          id: res.data.id,
+          grade: res.data.grade,
         }))
-        console.log(userChecker)
+        
         navigate('/main')
 
       }else {
@@ -95,7 +94,7 @@ const Login = () => {
 
   return (
     <Root container >
-      <LoginGrid xs={12}>
+      <LoginGrid xs={12} item>
         <LoginPaper>
           <Logo>
             <LockOutlinedIcon/> 

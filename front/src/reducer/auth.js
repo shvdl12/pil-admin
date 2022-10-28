@@ -6,8 +6,9 @@ export const logout = user => ({ type: LOGOUT, payload: user });
 
 const initalState = {
   user: {
+    id: '',
     token: '',
-    isAdmin: false
+    grade: ''
   }
 };
 
@@ -19,15 +20,17 @@ const userChecker = (state = initalState, action) => {
             user : {
               ...state.user,
               token : action.payload.token,
-              isAdmin : action.payload.isAdmin,
+              id: action.payload.id,
+              grade : action.payload.grade,
             }
           };
         case LOGOUT:
           return {
               ...state,
               user : {
-                token: '',
-                isAdmin: false,  
+                token : '',
+                id: '',
+                grade : '',
               }
           };
         default:
